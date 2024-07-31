@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollinations.ai Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #343a40;
+        }
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .image-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .loading-message {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Pollinations.ai Image Generator</h1>
+    <form id="image-form">
+        <div class="form-group">
+            <label for="prompt">Image Description:</label>
+            <input type="text" id="prompt" name="prompt" required>
+        </div>
+        <div class="form-group">
+            <label for="seed">Seed:</label>
+            <input type="number" id="seed" name="seed" value="-1" required>
+        </div>
+        <div class="form-group">
+            <label for="nofeed">No Feed:</label>
+            <select id="nofeed" name="nofeed">
+                <option value="true">True</option>
+                <option value="false" selected>False</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="nologo">No Logo:</label>
+            <select id="nologo" name="nologo">
+                <option value="true">True</option>
+                <option value="false" selected>False</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="width">Width:</label>
+            <input type="number" id="width" name="width" value="1024" min="1" max="2048" required>
+        </div>
+        <div class="form-group">
+            <label for="height">Height:</label>
+            <input type="number" id="height" name="height" value="1024" min="1" max="2048" required>
+        </div>
+        <button type="submit">Generate Image</button>
+        <button id="download-button" style="display: none;">Download Image</button>
+    </form>
+
+    <div class="image-container" id="image-container">
+        <!-- Generated image will be displayed here -->
+    </div>
+
+    <div class="loading-message" id="loading-message">
+        Generating image...
+    </div>
+
+    <script>
+        const imageForm = document.getElementById('image-form');
+        const downloadButton = document.getElementById('download-button');
+        const loadingMessage = document.getElementById('loading-message');
+        const imageContainer = document.getElementById('image-container');
+
+        imageForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            downloadButton.style.display = 'none';
+            loadingMessage.style.display = 'block';
+
+            const prompt = encodeURIComponent(document.getElementById('prompt').value);
+            const seed = document.getElementById('seed').value;
+            const nofeed = document.getElementById('nofeed').value;
+            const nologo = document.getElementById('nologo').value;
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
+
+            const url = `https://image.pollinations.ai/prompt/${prompt}?seed=${seed}&nofeed=${nofeed}&nologo=${nologo}&width=${width}&height=${height}`;
+
+            const generatedImage = new Image();
+            generatedImage.src = url;
+            generatedImage.onload = function() {
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(generatedImage);
+                loadingMessage.style.display = 'none';
+                downloadButton.style.display = 'inline';
+            };
+
+            generatedImage.onerror = function() {
+                loadingMessage.style.display = 'none';
+                imageContainer.innerHTML = '<p>Failed to load image. Please try again.</p>';
+            };
+
+            downloadButton.onclick = function() {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'generated-image.png';
+                link.click();
+            };
+        });
+    </script>
+
+</body>
+</html>
